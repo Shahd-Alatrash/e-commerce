@@ -1,31 +1,44 @@
 import userModel from "../../DB/model/User.model.js";
+import { asyncHandler } from "../Services/errorHandling.js";
 import { verifyToken } from "../Services/generateAndVerifyToken.js";
 
-export const auth = async (req,res,next)=>{
 
-    try{
-        const {authorization} = req.headers;
-
-        if(!authorization?.startsWith(process.env.BEARERKEY)){
-            return res.json({message:"invalid bearer key"});
-        }
-        const token = authorization.split(process.env.BEARERKEY)[1];
-        if(!token){
-            return res.json({message:"invalid token"})
-        }
-        const decoded = verifyToken(token);
-        const authUser = await userModel.findById(decoded.id).select("userName email");
-        if(!authUser){
-            return res.status(401).json({message:"not register account"});
-        }
-        req.id=decoded.id
-        next();
-    
-    }catch(error){
-        return res.json({message:"catch error",error:error.stack})
-    }
-   
+export const roles={
+    Admin:'Admin',
+    User:'User'
 }
 
-
-
+export const auth=(acessRoles=[])=>{   
+    return asyncHandler(async (req,res,next)=>{
+const{authorization}=req.headers;  
+//return res.json(authorization);
+if(!authorization?.startsWith(process.env.BEARERKEY))  {  
+    return next(new Error ( `invalid bearerkey or invalid token `,{cause:400}))
+}
+//return res.json(authorization);
+//const token=authorization.split(process.env.BEARERKEY); 
+const token=authorization.split(process.env.BEARERKEY)[1];
+//return res.json(token);
+if(!token){ 
+return next(new Error(`invalid token`,{cause:400}))
+}
+const decodded=verifyToken(token,process.env.LOGINTOKEN);
+//return res.json(decodded);
+if(!decodded){
+    return next(new Error(`invalid token payload `,{cause:400}))
+}
+//const user=await userModel.findById(decodded.id);
+const user=await userModel.findById(decodded.id).select('userName role changePasswoedTime');
+if(!user){ /** ادا انحدفت التوكن تبعت اليوزر  */
+return next(new Error(`not register user`,{cause:401})) 
+}
+if(!acessRoles.includes(user.role)){
+return next(new Error(`user not aithorization role`),{cause:403});
+}
+if(parseInt(user.changePasswoedTime?.getTime()/1000)>decodded.iat){  
+return next(new Error(`exp token`),{cause:400}); 
+}
+req.user=user; 
+return next();
+})
+}

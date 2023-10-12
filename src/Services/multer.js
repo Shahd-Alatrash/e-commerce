@@ -8,7 +8,7 @@ export const fileValidation ={
     image:['image/jpeg', 'image/png'],
     file:['application/pdf']
 }
-function fileUpload(customPath='public',customValidation=[]){
+function fileUpload(customValidation=[],customPath='public'){
     const fullPath=path.join(__dirname,`../upload/${customPath}`);
     if(!fs.existsSync(fullPath)){
         fs.mkdirSync(fullPath,{recursive:true});
