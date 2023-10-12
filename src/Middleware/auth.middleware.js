@@ -29,7 +29,7 @@ if(!decodded){
 }
 //const user=await userModel.findById(decodded.id);
 const user=await userModel.findById(decodded.id).select('userName role changePasswoedTime');
-if(!user){ /** ادا انحدفت التوكن تبعت اليوزر  */
+if(!user){ 
 return next(new Error(`not register user`,{cause:401})) 
 }
 if(!acessRoles.includes(user.role)){

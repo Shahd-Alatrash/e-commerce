@@ -11,25 +11,25 @@ const router=Router({mergeParams:true});
 router.use('/:productId/review', reviewRouter);
 
 
-//router.post('/',fileUpload(fileValidation.image).single('mainImage'),productController.createProduct) /** هون بس للمين ايمج  */
-router.post('/',auth(endpoint.create),fileUpload(fileValidation.image).fields([    /** هون ادا بدي ابعت اكتر من صورة ، الاولى المين ايميج والباقيات السب ايميج  */
+//router.post('/',fileUpload(fileValidation.image).single('mainImage'),productController.createProduct) 
+router.post('/',auth(endpoint.create),fileUpload(fileValidation.image).fields([   
     {name:'mainImage',maxCount:1},
-    {name:'subImages',maxCount:5}, /** لحد خمس صور بقدر اضيف  */
+    {name:'subImages',maxCount:5}, 
 ]),productController.createProduct) ;
 
 
-router.put('/update/:productId',auth(endpoint.update),fileUpload(fileValidation.image).fields([    /** هون ادا بدي ابعت اكتر من صورة ، الاولى المين ايميج والباقيات السب ايميج  */
+router.put('/update/:productId',auth(endpoint.update),fileUpload(fileValidation.image).fields([    
     {name:'mainImage',maxCount:1},
     {name:'subImages',maxCount:5}, 
 ]),productController.updateProduct) ;
 
-router.patch('/softDelete/:productId',auth(endpoint.softDelete),productController.softDelete);/** استرجاع بعد الحذف  */
+router.patch('/softDelete/:productId',auth(endpoint.softDelete),productController.softDelete);
 
-router.delete('/forceDelete/:productId',auth(endpoint.forceDelete),productController.forceDelete);/**حدف بشكل نهائي  */
+router.delete('/forceDelete/:productId',auth(endpoint.forceDelete),productController.forceDelete);
 
 router.patch('/restore/:productId',auth(endpoint.restore),productController.restore);
 
-router.get('/softdelete/',auth(endpoint.get),productController.getSoftDeleteProducts);/** هاد الفنكشن بعرضلي كل المنتجات الي معملولها سوفت ديليت */
+router.get('/softdelete/',auth(endpoint.get),productController.getSoftDeleteProducts);
 
 
 router.get('/:productId',productController.getProduct);

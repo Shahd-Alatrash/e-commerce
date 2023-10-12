@@ -8,8 +8,8 @@ import productModel from "../../../../DB/model/Product.model.js";
 
 export const createProduct = asyncHandler(async (req, res, next) => {
   const { name,price,discount,categoryId,subCategoryId,brandId } = req.body;
-  //res.json(req.files);   /** ادا بدي اتأكد انه الصور بوصلني بشكل صحيح  */
-  /**  موجودين ام لا  categoryId,subCategoryId,brandId اول ما انشأ البرودكت لازم اتاكد هل  */
+  //res.json(req.files);   
+
  const checkCategory=await subCategoryModel.findOne({_id:subCategoryId,categoryId});
  if(!checkCategory){
   return next(new Error(`invalid subCategoryId or categoryId `),{cause:400})
@@ -20,9 +20,9 @@ export const createProduct = asyncHandler(async (req, res, next) => {
  }
  req.body.slug=slugify(name);
  req.body.finalPrice=price-(price*((discount||0)/100));
- const{secure_url,public_id}=await cloudinary.uploader.upload(req.files.mainImage[0].path,{folder:`${process.env.APP_NAME}/'PRODUCT'}`}) /** mainImage مشان اقدر اوصل لل  */
+ const{secure_url,public_id}=await cloudinary.uploader.upload(req.files.mainImage[0].path,{folder:`${process.env.APP_NAME}/'PRODUCT'}`}) 
  req.body.mainImage={secure_url,public_id};
-if(req.body.subImages){ /** ادا ما في صور فرعية خلص بضيف البرودكت مباشرة ، ولكن ادا عندي صور فرعية بدي اعمل فور لوب وامشي عليهم وحدة وحدة */
+if(req.body.subImages){ 
 req.body.subImages=[];
 for(const file of req.body.subImages){
   const{secure_url,public_id}=await cloudinary.uploader.upload(file.path,{folder:`${process.env.APP_NAME}/'PRODUCT/SUBIMAGES'}`})
@@ -46,17 +46,17 @@ if(!product){
 
 
 export const updateProduct = asyncHandler(async (req, res, next) => {
-const{productId}=req.params; /** ما بعرف شو المعلومات الي بده يعدلهن ، ف بالاول بوخد ال اي دي تبعت البرودكت وبفحص هل هيي موجودة في الداتا بيس ام لا  */
+const{productId}=req.params;
 const newProduct=await productModel.findById(productId);
 if(!newProduct){
   return next(new Error(`product not found `,{cause:400}))
 }
   const { name,price,discount,categoryId,subCategoryId,brandId } = req.body;
   
-  if(categoryId && subCategoryId){ /**  كلهن الي جواتها  subCategory كلها وبهاي الحالة لازم اعدل ال category نفسها ، او بعدل على  category واضل جوا ال  subCategoryفي مرحلة التعديل بزبط اعدل ال  */
+  if(categoryId && subCategoryId){ 
    const checkSubCategory=await subCategoryModel.findOne({_id:subCategoryId,categoryId});
    if(checkSubCategory){
-    newProduct.subCategoryId=subCategoryId; /**  ، الي استلمها من فوق، يعني لسا ما غيرنا في الداتا بيس  subCategoryId غيره الى  ،  subCategoryId في جواته  newProduct معناها هاد ال   newProduct.subCategoryId */
+    newProduct.subCategoryId=subCategoryId; 
     newProduct.categoryId=categoryId;
    }else{
     return next(new Error(`categoryId or subCategoryId not found `,{cause:400}))
@@ -98,16 +98,16 @@ if(!newProduct){
   newProduct.size=req.body.size;
  }
  //return res.json(newProduct);
- if(price && discount){ /** ممكن يغير السعر والخصم ، ممكن يغير فقط السعر ويخلي الخصم متل ما هوي  */
+ if(price && discount){ 
   newProduct.price=price;
   newProduct.discount=discount;
   newProduct.finalPrice=price-(price*((discount||0)/100));
  }else if(price){
   newProduct.price=price;
-  newProduct.finalPrice=price-(price*((newProduct.discount)/100));/** لأنه مش باعتلي الخصم ، ف رح اوخد الخصم الي في الداتا بيس */
+  newProduct.finalPrice=price-(price*((newProduct.discount)/100));
  }else if(discount){
   newProduct.discount=discount;
-  newProduct.finalPrice=newProduct.price-(newProduct.price*((discount)/100));/**    لانه مش باعتلي السعر ، بوخد السعر الي في الداتا بيس newProduct.price */
+  newProduct.finalPrice=newProduct.price-(newProduct.price*((discount)/100));
  }
  if(req.files.mainImage.length){
   const{secure_url,public_id}=await cloudinary.uploader.upload(req.files.mainImage[0].path,{folder:`${process.env.APP_NAME}/'PRODUCT'}`}) 
@@ -124,7 +124,7 @@ for(const file of req.files.subImages){
 newProduct.subImages=subImages;
  }
  newProduct.updatedBy=req.user._id;
-const product=await newProduct.save(); /** عشان احدث المعلومات في الداتا بيس ، لانه كل الي فوق ما كنت اشتغل على الداتا بيس */
+const product=await newProduct.save(); 
 if(!product){
   return next(new Error(`fail to update product`,{cause:400}));
 }
@@ -177,9 +177,9 @@ export const getAllBrands = asyncHandler(async (req, res, next) => {
   return res.status(200).json({ message: "success", brands });
 });
 
-export const softDelete=asyncHandler(async(req,res,next)=>{/** السوفت ديليت الديفولت فولس ، لما اعمل سيند بتتحول الى ترو ف البوستمان  */    /**  انه اقدر اعمل استرجاع بعج ما احدف المنتج softDelete فكرة ال  */  /**  update  هيي عمل   softDelete فكرة ال  */
+export const softDelete=asyncHandler(async(req,res,next)=>{ 
   let {productId}=req.params;
-  const product=await productModel.findOneAndUpdate({_id:productId,deleted:false},{deleted:true},{new:true}); /** بقارن ال اي دي الي في الداتا بيس مع ال اي دي الي بعتها في الرابط ، وبشوف ادا الحدف فولس وقتها بحولها الى ترو وبعدل المعلومات الجديدة */
+  const product=await productModel.findOneAndUpdate({_id:productId,deleted:false},{deleted:true},{new:true}); 
   if(!product){
     return next(new Error(`product not found`,{cause:400}));
   }
@@ -191,7 +191,7 @@ export const restore=asyncHandler(async(req,res,next)=>{
   let {productId}=req.params;
   const product=await productModel.findOneAndUpdate({_id:productId,deleted:true},{deleted:false},{new:true});
   if(!product){
-    return next(new Error(`product not found`,{cause:400}));
+    return next(new Error(`product not found`,{cause:400})); 
   }
   return res.json({message:"success",product});
 })
@@ -222,7 +222,7 @@ export const getProduct=asyncHandler(async(req,res,next)=>{
 
 
 export const getAllProducts=asyncHandler(async(req,res,next)=>{
-  let{page,size}=req.query;  /***   عرض عدد معين من المنتجات في كل صفحة ، بدل ما يعرصضهن كلهن مرة واحدة  pagination  تطبيق فكرة ال  */
+  let{page,size}=req.query;  
   if(!page || page  <=0){
     page=1;
   }
@@ -230,7 +230,7 @@ export const getAllProducts=asyncHandler(async(req,res,next)=>{
     size=3;
   }
   const skip=(page-1)*size;
-  const products=await productModel.find().limit(size).skip(skip);/** http://localhost:3000/product?page=1&size=2 */    /**  عن كم منتج يتجاوز بكل صفحة skip  /**     يعني كم منتج يعرضلي بالصفحة limit */
+  const products=await productModel.find().limit(size).skip(skip);    
   if(!products){
     return next(new Error(`product not found`,{cause:400}));
   }

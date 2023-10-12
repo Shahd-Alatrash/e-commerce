@@ -3,7 +3,7 @@ import fileUpload, { fileValidation } from "../../Services/multerCloudinary.js";
 import * as subCategoryController from './controller/subCategory.controller.js'
 import * as validators from './subCategory.validation.js';
 import validation from "../../Middleware/validation.js";
-        const router=Router({mergeParams:true});  /** عشان يقدر الابن يتشارك البارمس تبعون الاب */
+        const router=Router({mergeParams:true}); 
 
 router.post('/',fileUpload(fileValidation.image).single('image'),validation(validators.createSubCategory),subCategoryController.createSubCategory)
     
@@ -11,5 +11,5 @@ router.put('/update/:subcategoryId',fileUpload(fileValidation.image).single('ima
 */
  router.get('/',subCategoryController.getSpecificSubCategory)
  router.get('/all',subCategoryController.getAllSubCategories)
- router.get('/:subCategoryId/products',subCategoryController.getProducts);   /**  mergeParams:true  رح استفيد من فكرة  */ /** مشان لما ادخل ع السبكاتيجوري اعرض المنتجات الي موجودة فيه */
+ router.get('/:subCategoryId/products',subCategoryController.getProducts); 
  export default router;

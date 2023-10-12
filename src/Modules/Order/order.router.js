@@ -3,7 +3,7 @@ import fileUpload, { fileValidation } from "../../Services/multerCloudinary.js";
 import * as orderController from './controller/order.controller.js'
 import * as validators from './order.validation.js';
 import validation from "../../Middleware/validation.js";
-import subCategory from "../subCategory/subCategory.router.js"/**www.facebook.com/category/25488/subcategory    ،  subCategory  الى  category  عشان يدخل من ال */
+import subCategory from "../subCategory/subCategory.router.js" 
 import { auth, roles } from "../../Middleware/auth.middleware.js";
 import { endpoint } from "./order.endpoint.js";
 const router=Router();

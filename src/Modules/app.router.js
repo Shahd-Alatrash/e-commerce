@@ -21,13 +21,13 @@ const initApp=(app,express)=>{
 
 app.use(async(req,res,next)=>{
     //console.log(req.header('origin'));
-//     var whitelist = ['http://example1.com', 'http://example2.com']   /** مشان اسمه لفرونت معين يشتغل ع مشروعي ، بحط رابط مشروع الفرونت وقتها بصير يقدر يستخدم مشروعي الباك  */ /** مشان احدد مين بقدر يشوف الموقع تبعي ويستخدمه */
+//     var whitelist = ['http://example1.com', 'http://example2.com']  
 //    if(!whitelist.includes(req.header('origin'))){
 //     return next(new Error(`invalid origin`,{cause:403}))
 //    }
     next();
 })
-    app.use(cors())  /** هاي معناها مسموح الكل يستخدم مشروعي  */
+    app.use(cors()) 
     connectDB();
     app.use(express.json());
     app.use('/upload',express.static(fullPath));

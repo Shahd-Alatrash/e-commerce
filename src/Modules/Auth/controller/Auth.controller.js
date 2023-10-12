@@ -55,7 +55,7 @@ export const signup = asyncHandler(async (req, res, next) => {
 
 export const confirmEmail = asyncHandler(async (req, res) => {
     const {token} = req.params;
-    const decoded = verifyToken(token, process.env.SIGNUP_TOKEN); /** فك تشفير التوكن */
+    const decoded = verifyToken(token, process.env.SIGNUP_TOKEN); 
 
     if (! decoded ?. email) {
         return next(new Error("invalid tpken payload", {cause: 400}));
@@ -87,7 +87,7 @@ export const login = asyncHandler(async (req, res, next) => {
             return next(new Error("in valid password"));
         } else {
             const token = generateToken({id: user._id,role:user.role},process.env.LOGINTOKEN,'1h');
-            const refreshToken=generateToken({id: user._id,role:user.role},process.env.LOGINTOKEN,60*60*24*365);/** التوكن الاولى الي لما يعمل تسجيل دخول مدتها فقط ساعة ، بعد ساعة ادا عمل ريكوست معين ما رح يزبط لانه رح يعمل تسجيل خروج تلقائي ، هون بتيجي فكرة الريفرش ، نفس التوكن بس خليت مدتها سنة  */
+            const refreshToken=generateToken({id: user._id,role:user.role},process.env.LOGINTOKEN,60*60*24*365);
             return res.status(200).json({message: "Done", token,refreshToken});
         }
     }
@@ -95,7 +95,7 @@ export const login = asyncHandler(async (req, res, next) => {
 
 export const NewconfirmEmail = asyncHandler(async (req, res, next) => {
     let {token} = req.params;
-    const {email} = verifyToken(token, process.env.SIGNUP_TOKEN); /** بفك تشفثير التوكن وبوخد منها الايميل  */
+    const {email} = verifyToken(token, process.env.SIGNUP_TOKEN); 
     if (!email) {
         return next(new Error("invalid token payload", {cause: 400}));
     }
@@ -103,8 +103,8 @@ export const NewconfirmEmail = asyncHandler(async (req, res, next) => {
     if (! user) {
         return next(new Error("not register account", {cause: 409}));
     }
-    /** ادا اليوزر موجود بدي اتأكد هل الكونفيرم ايميل اله ترو ام فولس */
-    if (user.confirmEmail) { /** في حال كان عامل كونفيرم ايميل واجى يعمل كونفيرم ايميل كمان مرة ، بحوله ع رابط اللينكد ان الي انا حاطيته تحت ،او على رابط اللوج ان انه خلص انت سجلت دخولك  */
+
+    if (user.confirmEmail) { 
         return res.status(200).redirect(`${
             process.env.FE_URL
         }`);
@@ -125,12 +125,12 @@ export const NewconfirmEmail = asyncHandler(async (req, res, next) => {
 
 export const sendCode=asyncHandler(async(req,res,next)=>{
     const {email}=req.body;
-    // const code=customAlphabet('123456789AbCd',4); /**   مكتبة موجودة داخل النانو اي دي ، بتنشألي نص عشوائي ، هون بختار اربع احرف وارقام من الي انا مدخلهن ، عشان يرسلهن ك كود الى الايميل لتأكيد الدخول وتغيير كلمة السر عند النسيان  customAlphabet */
+    // const code=customAlphabet('123456789AbCd',4);
     // return res.json(code());
 
     let code=customAlphabet('123456789AbCd',4);
     code=code();
-    const user=await userModel.findOneAndUpdate({email},{forgetCode:code},{new:true});/** اليوزر الي ايميله  يساوي الايميل الي مبعوث روح على فورجيت كود عنده وحطلي قيمتها الكود الي هون  */
+    const user=await userModel.findOneAndUpdate({email},{forgetCode:code},{new:true});
     const html=`<p> code is ${code}</p>`;
     await sendEmail(email,`forget password`,html);
     return res.status(200).json({message:"success",user});
@@ -141,15 +141,15 @@ export const forgetPassword=asyncHandler(async(req,res,next)=>{
     const{code,email,password}=req.body;
     const user =await userModel.findOne({email});
 
-    if(!user){ /** ادا ما في ايميل اصلا */
+    if(!user){ 
         return next(new Error(`not register account`,{cause:400}));
     }
-    if(user.forgetCode!=code || !code){ /** ادا الكود الي دخله غير عن الكود الي مخزن في الداتا بيس  */
+    if(user.forgetCode!=code || !code){ 
         return next(new Error(`invalid code`,{cause:400}));
     }
-    user.password=hash(password); /** شفر الباسوورد الجديدة */
-    user.forgetCode=null; /** معناها انه خلص انا عدلت الباسوورد تبعتي  */
-    user.changePasswoedTime=Date.now(); /**  الوقت الي بتتغير فيه الباسوورد changePasswoedTime   ، بترجع الوقت الحالي   Date.now() */
-    user.save(); /** عشان يحفظ الي عملته */
+    user.password=hash(password);
+    user.forgetCode=null; 
+    user.changePasswoedTime=Date.now();
+    user.save(); 
     return res.status(200).json({message:"success",user});
 })

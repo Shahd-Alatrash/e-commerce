@@ -11,10 +11,10 @@ export const addProductToCart = asyncHandler(async (req, res, next) => {
   if(!product){
     return next(new Error(`product is not found`,{cause:400}));
   }
-  if(product.stock<qty){ /** ادا طلب اليوزر كمية اكبر من العدد المتوفر في المخزن */
+  if(product.stock<qty){ 
     return next(new Error(`invalid product quantity`,{cause:400}));
   }
-  const cart=await cartModel.findOne({userId:req.user._id});/** اليوزر الواحد لازم اله سلة وحدة ، بفحص اول شي هل اليوزر اله سلم ام لا ، ادا ما في اله بقوم بانشاء سلة اله */
+  const cart=await cartModel.findOne({userId:req.user._id});
   if(!cart){
    const newCart=await cartModel.create({
     userId:req.user._id,
@@ -23,13 +23,13 @@ export const addProductToCart = asyncHandler(async (req, res, next) => {
    return res.status(201).json({message:"success",newCart});
   }
   let matchProducts=false;
- for( let i=0;i<cart.products.length;i++){/** ادا اليوزر عنده سلة وعنده المنتج جوا السلة ، اذن بهاي الحالة بدي اعدل ع الكمية فقط */
- if(cart.products[i].productId.toString()===productId){ /**   هاي نوعها اوبجكت بحولها الى سترنج عشان اقدر اقارنها لما احط تلات اشارات يساوي مع السترنج الي قبالها cart.products[i].productId */
+ for( let i=0;i<cart.products.length;i++){
+ if(cart.products[i].productId.toString()===productId){ 
 cart.products[i].qty=qty;
 matchProducts=true;
 break;
  }
- if(matchProducts==false){ /** معناها المنتج جديد بدي اروح اضيفه ع السلة ، مشش اعدل الكمية متل ال اف الي فوق ، فقط اضيفه ع السلة */
+ if(matchProducts==false){ 
   cart.products.push({productId,qty});
  }
  }
